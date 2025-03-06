@@ -1,0 +1,37 @@
+.ssh:
+  image: kroniak/ssh-client:3.19
+  variables:
+    SSH_HOST: "192.168.0.1"
+    SSH_USER: "ubuntu"
+    SSH_ADDRESS: $SSH_USER@$SSH_HOST
+  before_script:
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config && chmod 600 ~/.ssh/config
+    - echo "$SSH_PRIVATE_KEY_BASE64" | base64 -d > ~/.ssh/id_rsa && chmod 400 ~/.ssh/id_rsa
+    - ssh-agent sh -c "ssh-add ~/.ssh/id_rsa"
+    - ssh-keyscan -H "$SSH_HOST"
+
+
+.docker_run:
+  extends: .ssh
+  stage: deploy
+  variables:
+    OPT_DOCKER: ""
+    DOCKERFILE_PATH: Dockerfile
+    IMAGE_TAG: $CI_COMMIT_SHA
+    IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_DRIVER: overlay2
+    PRUNE_COMMAND: "docker system prune -f -a"
+    CONTAINER_NAME_SUFFIX: ""
+  script:
+    - ls
+    - echo $CI_PROJECT_DIR
+    - echo $SSH_ADDRESS
+    - scp -r $CI_PROJECT_DIR $SSH_ADDRESS:~
+    - ssh $SSH_ADDRESS "cd backend_and_frontend && docker compose up --build -d"
+    - ssh $SSH_ADDRESS "$PRUNE_COMMAND"
+ 
