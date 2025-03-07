@@ -10,7 +10,7 @@ export default function Home() {
         queryFn: getBooks
     })
     if (isLoading) return <Loading/>
-    if (books?.length === 0) return <p className={'text-center text-xl'}>Книги не найдены</p>
+    if (typeof books === "undefined" || books?.length === 0) return <p className={'text-center text-xl'}>Книги не найдены</p>
     const trends = books.slice(0, 5)
     return (
         <div className={'my-8'}>

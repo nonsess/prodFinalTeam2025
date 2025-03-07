@@ -2,8 +2,6 @@ import React, {useState} from "react";
 import Image from "next/image";
 import {MapPin} from "lucide-react";
 import {Button} from "@/components/ui/button";
-import ReviewList from "@/components/ReviewList";
-import BookReview from "@/components/BookReview";
 import {useQuery} from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import {
@@ -12,7 +10,6 @@ import {
     DialogTrigger,
     DialogTitle,
 } from "@/components/ui/dialog";
-import {BASE_URL} from "@/services/constants";
 import {getUserById} from "@/services/auth.service";
 import Loading from "@/app/loading";
 import {redirect} from "next/navigation";
